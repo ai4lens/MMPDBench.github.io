@@ -209,11 +209,11 @@
       50% { opacity: 0.3; }
     }
     .hero h1 {
-      font-size: clamp(3rem, 7vw, 5.5rem);
+      font-size: clamp(2.75rem, 6.4vw, 5rem);
       font-weight: 900;
       letter-spacing: -0.03em;
       line-height: 1.05;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
     .hero h1 .gradient-text {
       background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 50%, var(--accent-3) 100%);
@@ -221,12 +221,57 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
+    .hero-tagline {
+      font-size: clamp(1.2rem, 2.4vw, 1.75rem);
+      font-weight: 700;
+      line-height: 1.32;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      max-width: 880px;
+      margin: 0.25rem auto 1.5rem;
+    }
+    .hero-tagline .accent { color: var(--accent-1); }
     .hero-subtitle {
-      font-size: clamp(1rem, 2vw, 1.25rem);
+      font-size: clamp(0.95rem, 1.4vw, 1.1rem);
       line-height: 1.7;
       color: var(--text-3);
-      max-width: 720px;
+      max-width: 760px;
+      margin: 0 auto 2rem;
+    }
+    .hero-authors {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.4rem 1.1rem;
+      max-width: 880px;
+      margin: 0.5rem auto 0.6rem;
+    }
+    .hero-author {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-2);
+      white-space: nowrap;
+    }
+    .hero-author sup {
+      color: var(--accent-1);
+      font-weight: 700;
+      font-size: 0.72em;
+      margin-left: 1px;
+    }
+    .hero-author.lead { font-weight: 600; color: var(--text); }
+    .hero-affils {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.5rem;
+      justify-content: center;
+      font-size: 0.82rem;
+      color: var(--muted);
       margin: 0 auto 2.5rem;
+    }
+    .hero-affils sup {
+      color: var(--accent-1);
+      font-weight: 700;
+      margin-right: 2px;
     }
     .hero-actions {
       display: flex;
@@ -270,6 +315,14 @@
       pointer-events: none;
       opacity: 0.55;
       filter: grayscale(0.4);
+    }
+    .btn-hf .hf-logo {
+      width: 20px;
+      height: 20px;
+      transition: transform 0.3s ease;
+    }
+    .btn-hf:hover .hf-logo {
+      transform: rotate(-8deg) scale(1.05);
     }
 
     /* ── Stat Cards ─────────────────────────────────── */
@@ -387,11 +440,12 @@
       overflow: hidden;
       border: 1px solid var(--border);
       background: var(--surface);
-      padding: 2rem;
+      padding: 1.5rem 1.5rem 0;
     }
     .arch-image-wrap img {
       width: 100%;
-      border-radius: 12px;
+      border-radius: 8px;
+      display: block;
     }
     .arch-placeholder {
       width: 100%;
@@ -426,6 +480,26 @@
       color: var(--muted-2);
       max-width: 480px;
       line-height: 1.5;
+    }
+    .arch-caption {
+      margin: 1.5rem -1.5rem 0;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      line-height: 1.55;
+      color: var(--text-3);
+      text-align: left;
+    }
+    .arch-caption strong.fig-label {
+      color: var(--text);
+      font-weight: 700;
+      margin-right: 0.25rem;
+    }
+    .arch-caption .panel-tag {
+      display: inline-block;
+      font-weight: 700;
+      color: var(--accent-1);
+      margin-right: 0.15rem;
     }
 
     /* ── Benchmark Charts ──────────────────────────── */
@@ -491,25 +565,27 @@
       border-radius: 6px;
       width: 0;
       transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding-right: 8px;
     }
     .bar-fill.animated { width: var(--target-width); }
-    .bar-fill span {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: rgba(255,255,255,0.95);
-      white-space: nowrap;
-    }
     .bar-fill.ours {
       background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
     }
     .bar-fill.other {
       background: #cbd5e1;
     }
-    .bar-fill.other span { color: var(--text-2); }
+    .bar-value {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text);
+      width: 2.6rem;
+      text-align: right;
+      flex-shrink: 0;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+    .bar-row.is-ours .bar-value {
+      color: var(--accent-1);
+    }
 
     /* ── Gallery Section ───────────────────────────── */
     .gallery-tabs {
@@ -954,6 +1030,7 @@
       overflow: hidden;
       border: 1px solid var(--border);
       background: var(--surface);
+      padding: 1.25rem 1.25rem 0;
       transition: all 0.3s ease;
     }
     .figure-showcase:hover {
@@ -967,16 +1044,37 @@
       width: 100%;
       display: block;
       cursor: zoom-in;
+      border-radius: 8px;
     }
     .figure-showcase .figure-caption {
+      margin: 1.25rem -1.25rem 0;
       padding: 1rem 1.5rem;
       font-size: 0.85rem;
       color: var(--text-3);
       line-height: 1.55;
       border-top: 1px solid var(--border);
+      text-align: left;
     }
     .figure-showcase .figure-caption strong {
       color: var(--text);
+    }
+    .figure-showcase .figure-caption .panel-tag {
+      display: inline-block;
+      font-weight: 700;
+      color: var(--accent-1);
+      margin-right: 0.15rem;
+    }
+
+    /* ── Figure-showcase placeholder sizing ──────────── */
+    .figure-showcase .image-placeholder {
+      width: 100%;
+      max-width: 100%;
+      padding: 3.5rem 2rem;
+      font-size: 1rem;
+      border-radius: 8px;
+    }
+    .figure-showcase .image-placeholder strong {
+      font-size: 1.05rem;
     }
 
     /* ── Findings (8 numbered cards) ─────────────────── */
@@ -1123,34 +1221,80 @@
   <div class="hero-content">
     <div class="hero-badge reveal">
       <span class="dot"></span>
-      ICML 2026 &middot; UCL &amp; Oxford
+      ICML 2026
     </div>
     <h1 class="reveal reveal-delay-1">
       <span class="gradient-text">MMPD-Bench</span>
     </h1>
+
+    <h2 class="hero-tagline reveal reveal-delay-2">
+      Bridging <span class="accent">Multimodal Fission</span> with<br/>
+      <span class="accent">Multi-Polarimetric Modalities Decomposition</span>
+    </h2>
+
     <p class="hero-subtitle reveal reveal-delay-2">
-      Bridging <strong style="color: var(--text);">Multimodal Fission</strong> with <strong style="color: var(--text);">Multi-Polarimetric Modalities Decomposition</strong> &mdash;
-      the first benchmark that reframes Mueller matrix polar decomposition as a modality-fission problem and evaluates deep surrogates on physical consistency, fidelity, robustness, and efficiency.
+      Replacing iterative numerical Mueller-matrix inversion with deep surrogate models.
+      <strong style="color: var(--text-2); font-weight: 600;">21,412</strong> real-world Mueller-matrix observations,
+      <strong style="color: var(--text-2); font-weight: 600;">16</strong> baselines spanning
+      state-space models, vision transformers, conditional diffusion, and neural operators &mdash;
+      evaluated under a multi-faceted protocol of fidelity, physical consistency, robustness, and efficiency.
     </p>
+
+    <div class="hero-authors reveal reveal-delay-3">
+      <span class="hero-author lead">Yi He<sup>*,1</sup></span>
+      <span class="hero-author lead">Zimo Zhao<sup>*,2</sup></span>
+      <span class="hero-author">Yiming Yang<sup>1</sup></span>
+      <span class="hero-author">Xiaoyuan Cheng<sup>1</sup></span>
+      <span class="hero-author lead">Chao He<sup>&dagger;,2</sup></span>
+      <span class="hero-author lead">Yukun Hu<sup>&dagger;,1</sup></span>
+    </div>
+    <div class="hero-affils reveal reveal-delay-3">
+      <span><sup>1</sup>Dynamic Systems Lab, University College London</span>
+      <span><sup>2</sup>Vectorial Optics and Photonics Group, University of Oxford</span>
+      <span style="color: var(--muted-2);">
+        <sup style="color: var(--muted-2);">*</sup>Equal contribution
+        &nbsp;&middot;&nbsp;
+        <sup style="color: var(--muted-2);">&dagger;</sup>Corresponding authors
+      </span>
+    </div>
+
+    <!--
+    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    ┃  EDIT URLS HERE  (search this file for the token  CTA_PAPER_URL  or     ┃
+    ┃  CTA_HF_URL  to find the same anchors).                                  ┃
+    ┃                                                                          ┃
+    ┃  1. Paper      →  change  href="#"  on the .btn-primary  below.          ┃
+    ┃  2. HuggingFace →  change  href="#"  on the .btn-secondary below.        ┃
+    ┃                                                                          ┃
+    ┃  Suggested HF URL form:  https://huggingface.co/datasets/<org>/MMPD-Bench┃
+    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+    -->
     <div class="hero-actions reveal reveal-delay-3">
-      <!-- TODO: replace href="#" with the camera-ready PDF link once available -->
-      <a href="#" class="btn btn-primary" title="Paper PDF (placeholder)">
+      <!-- CTA_PAPER_URL: replace href below with the camera-ready PDF or arXiv URL -->
+      <a href="#" class="btn btn-primary" title="Paper (placeholder)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        Read Paper
+        Paper
       </a>
-      <!-- TODO: replace href="#" with the public GitHub repo once de-anonymized -->
-      <a href="#" class="btn btn-secondary" title="GitHub repo (placeholder)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-        Code
-      </a>
-      <!-- TODO: replace href="#" with HuggingFace / Zenodo dataset link -->
-      <a href="#" class="btn btn-secondary" title="Dataset (placeholder)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>
-        Dataset
-      </a>
-      <a href="https://anonymous.4open.science/r/MMPD_bench-F272/" target="_blank" rel="noopener" class="btn btn-secondary">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        Anonymous Demo
+      <!-- CTA_HF_URL: replace href below with the HuggingFace dataset/model URL -->
+      <a href="https://huggingface.co/datasets/HY2333/MMPD_Bench" class="btn btn-secondary btn-hf" title="HuggingFace">
+        <!-- HuggingFace brand mark -->
+        <svg class="hf-logo" width="20" height="20" viewBox="0 0 95 88" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- face base -->
+          <path fill="#FFD21E" d="M47.21 76.07c19.43 0 35.18-15.93 35.18-35.59 0-19.65-15.75-35.59-35.18-35.59S12.03 20.83 12.03 40.48c0 19.66 15.75 35.59 35.18 35.59z"/>
+          <!-- face outline -->
+          <path fill="#FF9D0B" d="M81.51 40.48c0 19.27-15.32 34.85-34.3 34.85S12.91 59.75 12.91 40.48 28.23 5.64 47.21 5.64s34.3 15.57 34.3 34.84zm-69.96 0c0 19.85 16 35.94 35.66 35.94S82.87 60.32 82.87 40.48 66.87 4.55 47.21 4.55 11.55 20.63 11.55 40.48z"/>
+          <!-- eyes -->
+          <path fill="#3A3B45" d="M58.5 32.43a3.3 3.3 0 1 1-6.59-.05 3.3 3.3 0 0 1 6.59.05zm-15.93 0a3.3 3.3 0 1 1-6.59-.05 3.3 3.3 0 0 1 6.59.05z"/>
+          <!-- cheeks -->
+          <path fill="#FF9D0B" d="M61.93 46.08c2.95 0 5.13 2.65 4.49 5.32-1.04 4.34-5.91 9.27-13.4 9.27s-12.36-4.93-13.4-9.27c-.64-2.67 1.54-5.32 4.49-5.32h17.82z"/>
+          <!-- smile -->
+          <path fill="#3A3B45" d="M40.7 53.16c.84 2.34 4.79 6.96 12.32 6.96 7.52 0 11.48-4.62 12.32-6.96.3-.84-.39-1.66-1.27-1.66h-22.1c-.88 0-1.57.82-1.27 1.66z"/>
+          <!-- left hand -->
+          <path fill="#FFD21E" d="M15.66 49.85c-1.84-2.55-5.36-2.93-7.86-.86s-2.93 5.78-1.09 8.33l9.69 13.45c1.84 2.55 5.36 2.93 7.86.86s2.93-5.78 1.09-8.33L15.66 49.85z"/>
+          <!-- right hand -->
+          <path fill="#FFD21E" d="M78.78 49.85c1.84-2.55 5.36-2.93 7.86-.86s2.93 5.78 1.09 8.33l-9.69 13.45c-1.84 2.55-5.36 2.93-7.86.86s-2.93-5.78-1.09-8.33l9.69-13.45z"/>
+        </svg>
+        HuggingFace
       </a>
     </div>
 
@@ -1185,14 +1329,22 @@
       <div>
         <div class="glow-line reveal"></div>
         <p class="section-label reveal">Abstract</p>
-        <h2 class="section-title reveal reveal-delay-1">Modality Fission for<br/>Polarimetric Decomposition</h2>
+        <h2 class="section-title reveal reveal-delay-1">A Benchmark for Polarimetric<br/>Modality Fission</h2>
         <p class="abstract-text reveal reveal-delay-2">
           Recovering multiple physical parameters from high-dimensional optical measurements remains challenging in computational optics.
-          MMPD-Bench reframes Mueller matrix polar decomposition (MMPD) as a <em>modality fission</em> problem in multimodal learning,
-          replacing iterative numerical inversion with deep surrogate models. We benchmark representative architectures &mdash;
-          state space models, vision transformers, conditional diffusion models, and neural operators &mdash; under a multi-faceted protocol that
-          jointly assesses perceptual fidelity, physical consistency, robustness, and computational efficiency.
-          Our analysis reveals non-trivial trade-offs between accuracy and robustness in accelerated high-fidelity polarimetric decomposition.
+          MMPD-Bench is a pioneering benchmark that reframes multi-polarimetric modalities decomposition from Mueller-matrix observations as a
+          <em>modality fission</em> problem under the multimodal learning paradigm &mdash; replacing iterative numerical inversion with deep surrogate models
+          and providing data, standardised solutions, and evaluations for this multi-physics generation challenge.
+        </p>
+        <p class="abstract-text reveal reveal-delay-3" style="margin-top: 1rem;">
+          We benchmark representative architectures &mdash; <strong style="color: var(--text);">state space models</strong>,
+          <strong style="color: var(--text);">vision transformers</strong>,
+          <strong style="color: var(--text);">conditional diffusion models</strong>, and
+          <strong style="color: var(--text);">neural operators</strong> &mdash; under a multi-faceted protocol that jointly assesses
+          perceptual fidelity, physical consistency, robustness, and computational efficiency. Our analysis reveals non-trivial
+          accuracy&ndash;robustness trade-offs and key limitations of existing surrogates. To support reproducible research, we open-source
+          the full codebase together with <strong style="color: var(--text);">21,412 high-resolution Mueller-matrix observations</strong> and
+          <strong style="color: var(--text);">four specialised test sets</strong> acquired through physical polarimetric measurements.
         </p>
       </div>
       <ul class="feature-list reveal reveal-delay-2">
@@ -1200,28 +1352,28 @@
           <div class="feature-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></div>
           <div>
             <h4>Modality Fission Framing</h4>
-            <p>Formally unifies MMPD with multimodal representation learning &mdash; one entangled Mueller matrix disentangled into six physically distinct parameter manifolds.</p>
+            <p>Formally defines MMPD as a modality-fission problem, bridging high-dimensional Mueller-matrix decomposition with the standardised multimodal-generation paradigm.</p>
           </div>
         </li>
         <li class="feature-item">
           <div class="feature-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></svg></div>
           <div>
             <h4>Neural Operators for MMPD</h4>
-            <p>First adaptation of FNO / UNO to Mueller-matrix decomposition, spanning attention, state-space, generative, and operator-learning paradigms.</p>
+            <p>First adaptation of FNO &amp; UNO to Mueller-matrix decomposition &mdash; a benchmark that spans attention, state-space, generative, and operator-learning paradigms.</p>
           </div>
         </li>
         <li class="feature-item">
           <div class="feature-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></div>
           <div>
             <h4>21,412 Real-World Samples</h4>
-            <p>Paired Mueller matrix observations from custom wide-field polarimetric imaging on healthy &amp; diseased bone tissue, plus four specialised test sets.</p>
+            <p>High-resolution paired observations from a custom wide-field transmissive Mueller polarimeter on healthy &amp; diseased bone tissue, with four external test sets (waveplate, multi-wavelength).</p>
           </div>
         </li>
         <li class="feature-item">
           <div class="feature-icon pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
           <div>
             <h4>Multi-Faceted Evaluation</h4>
-            <p>PSNR, SSIM, 1-D Wasserstein, runtime, FLOPs, peak memory, and a retardance physical-consistency score &mdash; all open-sourced.</p>
+            <p>Transcends standard vision metrics with physical-consistency checks, scale-normalised numeric matching, and 1-D Wasserstein statistical distances &mdash; released as an open-source platform.</p>
           </div>
         </li>
       </ul>
@@ -1236,23 +1388,48 @@
       <p class="section-label">Method</p>
       <h2 class="section-title">How MMPD-Bench Works</h2>
       <p class="section-desc">
-        A spatially resolved 4&times;4 Mueller matrix observation is decomposed into six physically interpretable parameters &mdash;
-        diattenuation, depolarisation, linear / total retardance, fast-axis orientation, and optical rotation.
-        MMPD-Bench reframes this as a modality-fission task and benchmarks deep surrogates (SSMs, ViTs, diffusion models, neural operators)
-        under unified evaluations of fidelity, statistical alignment, physical consistency, robustness, and efficiency.
+        A spatially resolved 4&times;4 Mueller matrix observation describes the transformation of the polarisation state
+        under the Stokes&ndash;Mueller formalism, and is decomposed into six physically interpretable parameters &mdash;
+        <strong style="color: var(--text-2);">diattenuation (D)</strong>,
+        <strong style="color: var(--text-2);">depolarisation (&Delta;)</strong>,
+        <strong style="color: var(--text-2);">linear retardance (&eta;)</strong>,
+        <strong style="color: var(--text-2);">total retardance (R)</strong>,
+        <strong style="color: var(--text-2);">fast-axis orientation (&theta;)</strong>, and
+        <strong style="color: var(--text-2);">optical rotation (&psi;)</strong>.
+        Conventional MMPD relies on physics-based numerical inversion (Lu&ndash;Chipman), which can introduce numerical instability and computational
+        burden at large scale. MMPD-Bench reframes this process as a modality-fission problem and benchmarks deep surrogate models &mdash;
+        state space models, vision transformers, diffusion models, and neural operators &mdash; under unified evaluations of
+        fidelity, statistical alignment, physical consistency, robustness, and efficiency.
       </p>
     </div>
-    <div class="arch-image-wrap reveal reveal-delay-1">
-      <!-- TODO: replace placeholder with figures/teaser.png (paper Figure 1: overview pipeline) -->
-      <div class="arch-placeholder">
-        <span class="ph-tag">Figure 1 &middot; placeholder</span>
-        <strong style="color: var(--text-2); font-size: 1rem;">Overview of MMPD-Bench Pipeline</strong>
-        <p class="ph-note">
-          (a) 4&times;4 Mueller matrix observation &rarr; (b) Lu&ndash;Chipman numerical inversion (baseline) &rarr;
-          (c) deep surrogate modality-fission framework with unified evaluation across fidelity, consistency, robustness, and efficiency.
-        </p>
-      </div>
-    </div>
+    <!--
+    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    ┃  METHOD_FIGURE  (search this file for the token to jump here)            ┃
+    ┃                                                                          ┃
+    ┃  - Image source:  figures/Figure1-04.png   (swap path in <img src=...>)  ┃
+    ┃  - Caption text:  edit the <p class="arch-caption"> block below.         ┃
+    ┃                                                                          ┃
+    ┃  Recommended image export: ~1600 px wide, < 600 KB, lossless PNG.        ┃
+    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+    -->
+    <figure class="arch-image-wrap reveal reveal-delay-1" style="margin: 3rem 0 0;">
+      <img src="figures/Figure1-04.png" alt="MMPD-Bench overview pipeline (Figure 1)" />
+      <figcaption class="arch-caption">
+        <strong class="fig-label">Figure 1.</strong>
+        Overview of MMPD-Bench.
+        <span class="panel-tag">(a)</span>
+        A spatially resolved 4&times;4 Mueller matrix observation describes the transformation of the polarisation state under the
+        Stokes&ndash;Mueller formalism, and is decomposed into physically interpretable parameters &mdash;
+        diattenuation, depolarisation, linear and total retardance, fast-axis orientation, and optical rotation.
+        <span class="panel-tag">(b)</span>
+        Conventional MMPD factorises the measured Mueller matrix and conducts physics-based numerical inversion to derive the
+        components, but this process can introduce numerical instability and computational burden for large-scale polarimetric imaging.
+        <span class="panel-tag">(c)</span>
+        MMPD-Bench reframes this process as a modality-fission problem and benchmarks deep surrogate models &mdash; including
+        state space models, vision transformers, diffusion models, and neural operators &mdash; using unified evaluations of
+        fidelity, statistical alignment, physical consistency, robustness, and efficiency.
+      </figcaption>
+    </figure>
   </div>
 </section>
 
@@ -1266,10 +1443,10 @@
       <p class="section-label">Benchmarks</p>
       <h2 class="section-title">Quantitative Results</h2>
       <p class="section-desc">
-        Representative results on the combined bone-cell test set (clear Mueller-matrix observations).
-        Best models per metric are highlighted. Spectral methods (FNO / UNO) and FactFormer dominate the difficult angular-phase modality (&theta;);
-        deterministic surrogates lead on depolarisation (&Delta;); diffusion models struggle on quantitative fidelity.
-        See Tables 8 &amp; 9 in the paper for the full set of 16 model variants.
+        Representative base (-b) results on the combined bone-cell test set (clear Mueller-matrix observations); best model per chart is highlighted.
+        Neural operators (FNO / UNO) and FactFormer cover the difficult <strong style="color: var(--text-2);">angular-phase modalities (&theta;, &psi;)</strong>;
+        deterministic surrogates lead on <strong style="color: var(--text-2);">depolarisation (&Delta;)</strong>;
+        diffusion models trail across quantitative fidelity. Tables 8 &amp; 9 in the paper report the full set of 16 model variants.
       </p>
     </div>
     <div class="charts-grid">
@@ -1278,29 +1455,35 @@
         <h3>Fast-Axis Orientation (&theta;)</h3>
         <p class="chart-subtitle">PSNR &uarr; (dB)  &middot;  ImageTheta</p>
         <div class="bar-chart">
-          <div class="bar-row">
+          <div class="bar-row is-ours">
             <span class="bar-label">UNO-b (NO)</span>
-            <div class="bar-track"><div class="bar-fill ours" style="--target-width: 96%"><span>27.3</span></div></div>
+            <div class="bar-track"><div class="bar-fill ours" style="--target-width: 96%"></div></div>
+            <span class="bar-value">27.3</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">FNO-b (NO)</span>
-            <div class="bar-track"><div class="bar-fill other" style="--target-width: 91%"><span>25.9</span></div></div>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 91%"></div></div>
+            <span class="bar-value">25.9</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">SU-b (Mamba)</span>
-            <div class="bar-track"><div class="bar-fill other" style="--target-width: 87%"><span>24.8</span></div></div>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 87%"></div></div>
+            <span class="bar-value">24.8</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">FF-b (ViT)</span>
-            <div class="bar-track"><div class="bar-fill other" style="--target-width: 85%"><span>24.1</span></div></div>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 85%"></div></div>
+            <span class="bar-value">24.1</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">DDPM-b (DM)</span>
-            <div class="bar-track"><div class="bar-fill other" style="--target-width: 70%"><span>20.0</span></div></div>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 70%"></div></div>
+            <span class="bar-value">20.0</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">SU-b (ViT)</span>
-            <div class="bar-track"><div class="bar-fill other" style="--target-width: 54%"><span>15.2</span></div></div>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 54%"></div></div>
+            <span class="bar-value">15.2</span>
           </div>
         </div>
       </div>
@@ -1309,29 +1492,35 @@
         <h3>Depolarisation (&Delta;)</h3>
         <p class="chart-subtitle">SSIM &uarr; (%)  &middot;  ImageDelta</p>
         <div class="bar-chart">
-          <div class="bar-row">
+          <div class="bar-row is-ours">
             <span class="bar-label">FF-b (ViT)</span>
-            <div class="bar-track"><div class="bar-fill ours" style="--target-width: 99%"><span>99.8</span></div></div>
+            <div class="bar-track"><div class="bar-fill ours" style="--target-width: 99%"></div></div>
+            <span class="bar-value">99.8</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">SU-b (Mamba)</span>
-            <div class="bar-track"><div class="bar-fill other" style="--target-width: 99%"><span>99.3</span></div></div>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 99%"></div></div>
+            <span class="bar-value">99.3</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">FNO-b (NO)</span>
-            <div class="bar-track"><div class="bar-fill other" style="--target-width: 98%"><span>98.9</span></div></div>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 98%"></div></div>
+            <span class="bar-value">98.9</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">UNO-b (NO)</span>
-            <div class="bar-track"><div class="bar-fill other" style="--target-width: 97%"><span>97.4</span></div></div>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 97%"></div></div>
+            <span class="bar-value">97.4</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">DDIM-b (DM)</span>
-            <div class="bar-track"><div class="bar-fill other" style="--target-width: 86%"><span>85.9</span></div></div>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 86%"></div></div>
+            <span class="bar-value">85.9</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">DDPM-b (DM)</span>
-            <div class="bar-track"><div class="bar-fill other" style="--target-width: 79%"><span>79.4</span></div></div>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 79%"></div></div>
+            <span class="bar-value">79.4</span>
           </div>
         </div>
       </div>
@@ -1340,29 +1529,35 @@
         <h3>Statistical Alignment (&theta;)</h3>
         <p class="chart-subtitle">WD-1d &darr;  &middot;  whole test set, lower is better</p>
         <div class="bar-chart">
-          <div class="bar-row">
+          <div class="bar-row is-ours">
             <span class="bar-label">FNO-b (NO)</span>
-            <div class="bar-track"><div class="bar-fill ours" style="--target-width: 96%"><span>1.55</span></div></div>
+            <div class="bar-track"><div class="bar-fill ours" style="--target-width: 96%"></div></div>
+            <span class="bar-value">1.55</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">SU-b (Mamba)</span>
-            <div class="bar-track"><div class="bar-fill other" style="--target-width: 95%"><span>1.60</span></div></div>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 95%"></div></div>
+            <span class="bar-value">1.60</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">FF-b (ViT)</span>
-            <div class="bar-track"><div class="bar-fill other" style="--target-width: 94%"><span>1.70</span></div></div>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 94%"></div></div>
+            <span class="bar-value">1.70</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">UNO-b (NO)</span>
-            <div class="bar-track"><div class="bar-fill other" style="--target-width: 93%"><span>1.73</span></div></div>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 93%"></div></div>
+            <span class="bar-value">1.73</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">DDPM-b (DM)</span>
-            <div class="bar-track"><div class="bar-fill other" style="--target-width: 41%"><span>4.25</span></div></div>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 41%"></div></div>
+            <span class="bar-value">4.25</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">DDIM-b (DM)</span>
-            <div class="bar-track"><div class="bar-fill other" style="--target-width: 10%"><span>6.45</span></div></div>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 10%"></div></div>
+            <span class="bar-value">6.45</span>
           </div>
         </div>
       </div>
@@ -1378,7 +1573,7 @@
     <div class="reveal">
       <div class="glow-line"></div>
       <p class="section-label">Insights</p>
-      <h2 class="section-title">Eight Key Findings</h2>
+      <h2 class="section-title">Key Findings</h2>
       <p class="section-desc">
         Across the three task pillars &mdash; computational efficiency, modality fidelity &amp; physical consistency, and robustness under perturbations &mdash;
         we identify the following load-bearing observations from 16 model variants on 21,412 Mueller-matrix samples.
@@ -1410,7 +1605,7 @@
         <div class="finding-num">4</div>
         <div class="finding-body">
           <h4><span class="finding-tag fid">Fidelity</span>Neural Operators &amp; FactFormer resolve angular phase</h4>
-          <p>UNO-b achieves 27.3 dB PSNR on ImageTheta and FF-b 51.7 dB on ImagePsi &mdash; spectral parameterisation preserves &theta;/&psi; phase structure better than patch attention.</p>
+          <p>UNO-b achieves 27.3 dB PSNR on ImageTheta and FF-b 52.5 dB on ImagePsi (Table 8) &mdash; spectral parameterisation preserves &theta;/&psi; phase structure better than patch attention.</p>
         </div>
       </div>
       <div class="finding-card reveal reveal-delay-3">
@@ -1453,101 +1648,192 @@
     <div class="reveal">
       <div class="glow-line"></div>
       <p class="section-label">Gallery</p>
-      <h2 class="section-title">Decomposition Examples</h2>
+      <h2 class="section-title">Visual Companion</h2>
       <p class="section-desc">
-        Qualitative comparisons across the three sample classes &mdash; healthy bone tissue, diseased tissue, and waveplate calibration references.
-        Each row shows a Mueller-matrix input (left) and the six decomposed modality maps {D, &Delta;, &eta;, &theta;, &psi;, R}.
-        Figures will be replaced with paper Figure 8 (a&ndash;q) panels.
+        A visual deep-dive across the four task pillars &mdash; qualitative decomposition outputs (Figure 8),
+        the multi-dimensional performance radar (Figures 2 &amp; 7), retardance physical-consistency analysis (Figure 3),
+        and robustness under acquisition noise (Figures 5 &amp; 9). All figures are sourced from the paper.
       </p>
     </div>
 
+    <!-- GALLERY_TABS: 4 tabs, each pulling figures from the paper.
+         To add a new tab: add a <button class="gallery-tab" data-tab="X"> + a matching <div id="tab-X">. -->
     <div class="gallery-tabs reveal reveal-delay-1" style="margin-top: 2rem;">
-      <button class="gallery-tab active" data-tab="healthy">Healthy Tissue</button>
-      <button class="gallery-tab" data-tab="diseased">Diseased Tissue</button>
-      <button class="gallery-tab" data-tab="waveplate">Waveplate Test</button>
+      <!-- <button class="gallery-tab active" data-tab="samples">Decomposition Samples</button> -->
+      <button class="gallery-tab active" data-tab="radar">Performance Radar</button>
+      <button class="gallery-tab" data-tab="consistency">Physical Consistency</button>
+      <button class="gallery-tab" data-tab="robustness">Robustness under Noise</button>
     </div>
 
-    <!-- ── Tab: Healthy ── -->
-    <div class="gallery-panel active" id="tab-healthy">
+    <!-- ── Tab 1: Decomposition Samples (Figure 8 a–q, per-family panels) ── -->
+    <!--
+    GALLERY_FIGURE8: drop family figures at:
+      figures/Figure8-A.png  (Mamba)
+      figures/Figure8-B.png  (Transformer)
+      figures/Figure8-C.png  (Diffusion)
+      figures/Figure8-D.png  (Neural Operator)
+    Rename if your file convention differs; update <img src=...> below to match.
+    -->
+    <!-- <div class="gallery-panel active" id="tab-samples">
       <p class="section-desc" style="margin-bottom: 1.5rem; font-size: 0.92rem;">
-        Healthy bone sections exhibit organised fibrillar features &mdash; spatially coherent linear retardance (&eta;) and oriented fast-axis (&theta;) maps.
+        Per-family qualitative comparison against the Lu&ndash;Chipman ground truth. Each multi-row panel shows the six decomposed parameters
+        <strong>{D, &Delta;, &eta;, &theta;, &psi;, R}</strong> for the ground truth (top row), the model's prediction (middle row),
+        and the absolute-error map (bottom row). All predicted values are remapped to their physical ranges.
+        (Figure 8 in the paper appendix E.)
       </p>
-      <div class="image-grid">
-        <div class="image-card reveal">
-          <div class="image-wrap"><div class="image-placeholder ph-1"><strong>MM input</strong>4&times;4 Mueller matrix<br/>256&times;256&times;16</div></div>
-          <p class="image-prompt">Input: full Mueller matrix observation from a healthy bone section. (Placeholder &mdash; replace with paper Figure 8.a sample.)</p>
+
+      <figure class="figure-showcase reveal">
+
+        <div class="image-placeholder ph-1" style="aspect-ratio: 4/3;">
+          <strong>Figure 8.A &middot; placeholder</strong>
+          Mamba-based models: SwinUMamba (-s, -b) and SegMamba (-s, -b)
         </div>
-        <div class="image-card reveal reveal-delay-1">
-          <div class="image-wrap"><div class="image-placeholder ph-2"><strong>Diattenuation (D)</strong>range [0, 1]</div></div>
-          <p class="image-prompt">Reference Lu&ndash;Chipman decomposition output for D. (Placeholder.)</p>
+        <figcaption class="figure-caption">
+          <strong>Figure 8.A.</strong> Qualitative evaluation of polarimetric parameter estimation by Mamba-based models &mdash;
+          ground truth, SU-s, SU-b, Seg-s, Seg-b. SwinUMamba's U-shape preserves fine fibrillar structure on
+          &eta;/&theta; in healthy regions.
+        </figcaption>
+      </figure>
+
+      <figure class="figure-showcase reveal reveal-delay-1">
+
+        <div class="image-placeholder ph-2" style="aspect-ratio: 4/3;">
+          <strong>Figure 8.B &middot; placeholder</strong>
+          Transformer-based models: SwinUnet (-s, -b) and FactFormer (-s, -b)
         </div>
-        <div class="image-card reveal">
-          <div class="image-wrap"><div class="image-placeholder ph-3"><strong>Depolarisation (&Delta;)</strong>range [0, 1]</div></div>
-          <p class="image-prompt">Reference decomposition for &Delta; &mdash; small in healthy samples. (Placeholder.)</p>
+        <figcaption class="figure-caption">
+          <strong>Figure 8.B.</strong> Qualitative evaluation by Transformer-based models &mdash; SU-s, SU-b, FF-s, FF-b.
+          FactFormer's factorised attention resolves the angular-phase modalities (&theta;, &psi;) more cleanly than
+          the patch-based SwinUnet (cf. Finding 4).
+        </figcaption>
+      </figure>
+
+      <figure class="figure-showcase reveal">
+
+        <div class="image-placeholder ph-3" style="aspect-ratio: 4/3;">
+          <strong>Figure 8.C &middot; placeholder</strong>
+          Diffusion-based models: DDIM (-s, -b) and DDPM (-s, -b)
         </div>
-        <div class="image-card reveal reveal-delay-1">
-          <div class="image-wrap"><div class="image-placeholder ph-4"><strong>Linear Retardance (&eta;)</strong>range [0, &pi;)</div></div>
-          <p class="image-prompt">Reference decomposition for &eta; &mdash; dominant contrast in this regime. (Placeholder.)</p>
+        <figcaption class="figure-caption">
+          <strong>Figure 8.C.</strong> Qualitative evaluation by Diffusion-based models &mdash; DDIM-s, DDIM-b, DDPM-s, DDPM-b.
+          Visible pixel-level noise residuals across all six modalities illustrate the non-linear error amplification
+          discussed in Finding 5.
+        </figcaption>
+      </figure>
+
+      <figure class="figure-showcase reveal reveal-delay-1">
+
+        <div class="image-placeholder ph-4" style="aspect-ratio: 4/3;">
+          <strong>Figure 8.D &middot; placeholder</strong>
+          Neural Operator models: FNO (-s, -b) and UNO (-s, -b)
         </div>
-        <div class="image-card reveal">
-          <div class="image-wrap"><div class="image-placeholder ph-5"><strong>Fast-Axis (&theta;)</strong>range [&minus;&pi;/2, &pi;/2)</div></div>
-          <p class="image-prompt">Reference decomposition for &theta; &mdash; the angular-phase modality NOs resolve best. (Placeholder.)</p>
-        </div>
-        <div class="image-card reveal reveal-delay-1">
-          <div class="image-wrap"><div class="image-placeholder ph-6"><strong>Total Retardance (R)</strong>range [0, &pi;)</div></div>
-          <p class="image-prompt">Reference decomposition for R. (Placeholder.)</p>
-        </div>
-      </div>
+        <figcaption class="figure-caption">
+          <strong>Figure 8.D.</strong> Qualitative evaluation by Neural Operator models &mdash; FNO-s, FNO-b, UNO-s, UNO-b.
+          Rows: <em>ground truth</em>, <em>prediction</em>, <em>absolute error</em>; columns are the six modalities
+          <strong>{D, &Delta;, &eta;, &theta;, &psi;, R}</strong>, all remapped to physical ranges.
+          Colour bars on the right of each map indicate the value scale for that specific parameter and its error.
+        </figcaption>
+      </figure>
+    </div> -->
+
+    <!-- ── Tab 2: Performance Radar (Figure 2 + Figure 7) ── -->
+    <!--
+    GALLERY_FIGURE2: search for this token to jump here.
+    Two radar plots stacked:
+      - Figure 2  →  figures/Figure2-03.png   (base -b model variants)
+      - Figure 7  →  figures/Figure7-02.png   (small -s model variants)
+    Edit either <img src=...> or the matching <figcaption> below.
+    -->
+    <div class="gallery-panel active" id="tab-radar">
+      <p class="section-desc" style="margin-bottom: 1.5rem; font-size: 0.92rem;">
+        Five-axis radar comparing model families on clear Mueller-matrix observations.
+        Each axis is a normalised metric: <strong>PSNR &uarr;</strong> (pixel fidelity) &middot;
+        <strong>SSIM &uarr;</strong> (structural similarity) &middot;
+        <strong>WD-1d &darr;</strong> (statistical alignment) &middot;
+        <strong>Time &darr;</strong> (per-sample inference; per-step for diffusion) &middot;
+        <strong>R-Consist &uarr;</strong> (retardance physical consistency).
+      </p>
+
+      <figure class="figure-showcase reveal">
+        <img src="figures/Figure2-03.png" alt="Figure 2 — multi-dim radar (base models)" onclick="openLightbox(this.src)" />
+        <figcaption class="figure-caption">
+          <strong>Figure 2.</strong> Multi-dimensional performance analysis across modalities for models <strong>(-b)</strong>
+          against 5 metrics on clear observations &mdash;
+          <span class="panel-tag">1.</span> <strong>PSNR &uarr;</strong>: pixel-wise reconstruction fidelity and signal quality;
+          <span class="panel-tag">2.</span> <strong>SSIM &uarr;</strong>: preservation of structural information and spatial patterns;
+          <span class="panel-tag">3.</span> <strong>WD-1d &darr;</strong>: global statistical alignment across the entire test population;
+          <span class="panel-tag">4.</span> <strong>Time &darr;</strong>: runtime to inference per sample (for diffusion models, this plot compares the runtime to denoise one step);
+          <span class="panel-tag">5.</span> <strong>R-Consist &uarr;</strong>: consistency to the physical retardance.
+        </figcaption>
+      </figure>
+
+      <figure class="figure-showcase reveal reveal-delay-1">
+        <img src="figures/Figure7-02.png" alt="Figure 7 — multi-dim radar (small models)" onclick="openLightbox(this.src)" />
+        <figcaption class="figure-caption">
+          <strong>Figure 7.</strong> Multi-dimensional performance analysis across modalities for models <strong>(-s)</strong>
+          against the same 5 dimensions on clear observations &mdash; the small-scale counterpart of Figure 2.
+          Smaller variants of FNO / UNO retain a notable share of the area covered by their (-b) versions on PSNR / SSIM,
+          while pushing further on the Time axis &mdash; reflecting the efficiency&ndash;fidelity trade-off discussed in Findings 2 &amp; 6.
+        </figcaption>
+      </figure>
     </div>
 
-    <!-- ── Tab: Diseased ── -->
-    <div class="gallery-panel" id="tab-diseased">
+    <!-- ── Tab 3: Physical Consistency (Figure 3) ── -->
+    <!-- GALLERY_FIGURE3: drop scatter at  figures/Figure3.png  -->
+    <div class="gallery-panel" id="tab-consistency">
       <p class="section-desc" style="margin-bottom: 1.5rem; font-size: 0.92rem;">
-        Diseased regions show stronger depolarisation (&Delta;) and disrupted anisotropy &mdash; reduced orientation coherence and increased spatial variability.
+        Models that achieve both high visual accuracy <em>and</em> strict adherence to Stokes&ndash;Mueller physics fall inside the
+        <strong>High Fidelity Zone</strong>. FactFormer, FNO and SwinUMamba consistently land there;
+        diffusion models drift far outside (cf. Finding 3).
       </p>
-      <div class="image-grid">
-        <div class="image-card reveal">
-          <div class="image-wrap"><div class="image-placeholder ph-3"><strong>MM input</strong>diseased section</div></div>
-          <p class="image-prompt">Input MM from a diseased bone section. (Placeholder.)</p>
-        </div>
-        <div class="image-card reveal reveal-delay-1">
-          <div class="image-wrap"><div class="image-placeholder ph-1"><strong>D</strong>diattenuation</div></div>
-          <p class="image-prompt">Reference D map. (Placeholder.)</p>
-        </div>
-        <div class="image-card reveal">
-          <div class="image-wrap"><div class="image-placeholder ph-3"><strong>&Delta;</strong>elevated depolarisation</div></div>
-          <p class="image-prompt">Reference &Delta; map &mdash; larger and more spatially variable than in healthy tissue. (Placeholder.)</p>
-        </div>
-        <div class="image-card reveal reveal-delay-1">
-          <div class="image-wrap"><div class="image-placeholder ph-4"><strong>&eta;</strong>linear retardance</div></div>
-          <p class="image-prompt">Reference &eta; map. (Placeholder.)</p>
-        </div>
-        <div class="image-card reveal">
-          <div class="image-wrap"><div class="image-placeholder ph-5"><strong>&theta;</strong>fast-axis disrupted</div></div>
-          <p class="image-prompt">Reference &theta; map &mdash; orientation coherence decreases relative to healthy tissue. (Placeholder.)</p>
-        </div>
-        <div class="image-card reveal reveal-delay-1">
-          <div class="image-wrap"><div class="image-placeholder ph-2"><strong>R</strong>total retardance</div></div>
-          <p class="image-prompt">Reference R map. (Placeholder.)</p>
-        </div>
-      </div>
+
+      <figure class="figure-showcase reveal">
+        <img src="figures/Positioning_consist_R3.png" alt="Figure 3 — retardance consistency scatter" onclick="openLightbox(this.src)" />
+        <figcaption class="figure-caption">
+          <strong>Figure 3.</strong> Retardance consistency evaluates the physical validity of the generated decompositions
+          by correlating the normalised mean absolute error against the physical-consistency residual derived from the
+          retardance (<em>R</em>, <em>&eta;</em>) and orientation (<em>&psi;</em>) relationship. The
+          <strong>High Fidelity Zone</strong> insert highlights models that achieve both high visual accuracy and
+          strict adherence to Stokes&ndash;Mueller physics.
+        </figcaption>
+      </figure>
     </div>
 
-    <!-- ── Tab: Waveplate ── -->
-    <div class="gallery-panel" id="tab-waveplate">
+    <!-- ── Tab 4: Robustness under Noise (Figures 5 + 9) ── -->
+    <!--
+    GALLERY_FIGURE5_9: drop figures at:
+      figures/Figure5.png    (clean vs noisy pixel histograms)
+      figures/Figure9-D.png  (one family panel; paper has 9.A/B/C/D)
+    -->
+    <div class="gallery-panel" id="tab-robustness">
       <p class="section-desc" style="margin-bottom: 1.5rem; font-size: 0.92rem;">
-        Standardised waveplates with known optical parameters &mdash; an external test set probing cross-sample and spectral generalisation.
+        Stress-test with additive Gaussian noise at <em>&sigma;<sub>noise</sub> = 0.1 &sigma;<sub>pixel</sub></em>.
+        The histograms (Figure 5) and qualitative comparison (Figure 9) together explain why
+        smaller models stay more robust and why diffusion <em>improves</em> with noisy inputs (Findings 6&ndash;8).
       </p>
-      <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
-        <div class="image-card reveal">
-          <div class="image-wrap" style="aspect-ratio: 16/9;"><div class="image-placeholder ph-2"><strong>Quarter-wave plate</strong>known &eta; = &pi;/2</div></div>
-          <p class="image-prompt">Calibrated quarter-wave plate observation &amp; decomposed parameter maps; cross-validates model fidelity against ground-truth optical constants. (Placeholder.)</p>
+
+      <figure class="figure-showcase reveal">
+        <img src="figures/Histgram_noise_on_data2.png" alt="Figure 3 — retardance consistency scatter" onclick="openLightbox(this.src)" />
+        <figcaption class="figure-caption">
+          <strong>Figure 5.</strong> Histograms of pixel-intensity distributions across a sampled 16-channel Mueller matrix
+          normalised to [&minus;1, 1]. The plots compare clean measurements against noisy observations perturbed by
+          Gaussian noise, where the noise standard deviation is set to 10% of the pixel-value standard deviation
+          (<em>&sigma;<sub>noise</sub> = 0.1 &sigma;<sub>pixel</sub></em>).
+        </figcaption>
+      </figure>
+
+      <!-- <figure class="figure-showcase reveal reveal-delay-1">
+        <div class="image-placeholder ph-3" style="aspect-ratio: 4/3;">
+          <strong>Figure 9.D &middot; placeholder</strong>
+          Noised qualitative evaluation by Neural Operator models (representative family panel)
         </div>
-        <div class="image-card reveal reveal-delay-1">
-          <div class="image-wrap" style="aspect-ratio: 16/9;"><div class="image-placeholder ph-6"><strong>Half-wave plate</strong>known &eta; = &pi;</div></div>
-          <p class="image-prompt">Calibrated half-wave plate &mdash; tests the model's behaviour at the boundary of the &eta; range. (Placeholder.)</p>
-        </div>
-      </div>
+        <figcaption class="figure-caption">
+          <strong>Figure 9.D.</strong> Qualitative evaluation of <em>noised</em> polarimetric parameter estimation by
+          Neural Operator models &mdash; ground truth, prediction, and absolute-error rows for
+          {D, &Delta;, &eta;, &theta;, &psi;, R}, remapped to physical ranges.
+          Full per-family panels (Figure 9.A&ndash;D) are in the paper appendix.
+        </figcaption>
+      </figure> -->
     </div>
   </div>
 </section>
@@ -1557,11 +1843,7 @@
 <!-- ═══ Authors ═══ -->
 <section class="section" id="authors" style="padding: 5rem 0;">
   <div class="container" style="text-align:center;">
-    <p class="section-label reveal">Team</p>
     <h2 class="section-title reveal reveal-delay-1" style="margin-bottom: 0.5rem;">Authors</h2>
-    <p class="section-desc reveal reveal-delay-2" style="margin: 0 auto 2rem; text-align: center;">
-      University College London &middot; University of Oxford
-    </p>
     <div class="authors-list reveal reveal-delay-3">
       <span class="author-chip lead">Yi He<sup>*,1</sup></span>
       <span class="author-chip lead">Zimo Zhao<sup>*,2</sup></span>
@@ -1572,7 +1854,7 @@
     </div>
     <div class="affiliations reveal reveal-delay-4">
       <span><span class="aff-sup">1</span>Dynamic Systems Lab, University College London</span>
-      <span><span class="aff-sup">2</span>Department of Engineering Science, University of Oxford</span>
+      <span><span class="aff-sup">2</span>Vectorial Optics and Photonics Group, University of Oxford</span>
     </div>
     <p class="reveal reveal-delay-4" style="font-size: 0.78rem; color: var(--muted); margin-top: 1.25rem;">
       <strong style="color: var(--text-2);">*</strong> Equal Contribution &nbsp;&middot;&nbsp;
@@ -1614,7 +1896,7 @@
 
 <!-- ═══ Footer ═══ -->
 <footer class="footer">
-  <p>MMPD-Bench &middot; UCL &amp; Oxford &middot; ICML 2026</p>
+  <p>MMPD-Bench &middot; 2026</p>
 </footer>
 
 <!-- ═══ Lightbox ═══ -->
