@@ -1,0 +1,18 @@
+# Reference repos cloned for inspiration only — not part of the site
+refRepo/
+
+# Large source PDF — 128 MB, exceeds GitHub's file-size guidance
+ref/Benchmark_AI_for_MMPD.pdf
+
+# OS / editor noise
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Local previews
+__pycache__/
+.python-version
+
+
+.claude

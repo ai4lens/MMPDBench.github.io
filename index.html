@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MMPD-Bench &mdash; Bridging Multimodal Fission with Multi-Polarimetric Modalities Decomposition</title>
+  <meta name="description" content="MMPD-Bench (ICML 2026) is the first benchmark that reframes Mueller matrix polar decomposition as a modality-fission problem, evaluating deep surrogates (SSMs, ViTs, diffusion models, neural operators) on 21,412 real-world Mueller matrix samples." />
+  <meta name="author" content="Yi He, Zimo Zhao, Yiming Yang, Xiaoyuan Cheng, Chao He, Yukun Hu" />
+  <meta name="keywords" content="MMPD-Bench, Mueller matrix, polar decomposition, polarimetric imaging, modality fission, neural operators, ICML 2026, computational optics" />
+
+  <!-- Open Graph / social preview -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="MMPD-Bench: Bridging Multimodal Fission with Multi-Polarimetric Modalities Decomposition" />
+  <meta property="og:description" content="ICML 2026 benchmark for deep surrogates of Mueller matrix polar decomposition. 21,412 real-world samples, 16 model variants, multi-faceted evaluation." />
+  <meta property="og:url" content="https://mmpdbench.github.io/" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Theme tokens (light academic) ───────────────── */
+    :root {
+      --bg:          #ffffff;
+      --surface:     #f8fafc;     /* slate-50 */
+      --surface-2:   #f1f5f9;     /* slate-100 */
+      --border:      rgba(15, 23, 42, 0.08);
+      --border-2:    rgba(15, 23, 42, 0.15);
+      --text:        #0f172a;     /* slate-900 */
+      --text-2:      #334155;     /* slate-700 */
+      --text-3:      #475569;     /* slate-600 */
+      --muted:       #64748b;     /* slate-500 */
+      --muted-2:     #94a3b8;     /* slate-400 */
+      --accent-1:    #4f46e5;     /* indigo-600 */
+      --accent-2:    #0891b2;     /* cyan-700 */
+      --accent-3:    #1d4ed8;     /* blue-700 */
+      --accent-pink: #db2777;     /* pink-600 — polarization phase */
+    }
+
+    /* ── Reset & Base ───────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    /* ── Utilities ──────────────────────────────────── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+    .container-wide { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+    .section { padding: 7rem 0; position: relative; }
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent-1);
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+    .section-desc {
+      font-size: 1.1rem;
+      line-height: 1.7;
+      color: var(--text-3);
+      max-width: 720px;
+    }
+
+    /* ── Scroll Reveal ──────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ── Floating Navbar ────────────────────────────── */
+    .navbar {
+      position: fixed;
+      top: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(20px) saturate(1.6);
+      -webkit-backdrop-filter: blur(20px) saturate(1.6);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 0.5rem 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.04);
+    }
+    .navbar.scrolled {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: var(--border-2);
+      box-shadow: 0 6px 32px rgba(15, 23, 42, 0.08);
+    }
+    .nav-brand {
+      font-weight: 800;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-link {
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 100px;
+      color: var(--muted);
+      transition: all 0.25s ease;
+      white-space: nowrap;
+    }
+    .nav-link:hover { color: var(--text); background: rgba(15,23,42,0.04); }
+    .nav-link.active { color: var(--accent-1); background: rgba(79,70,229,0.08); }
+
+    /* ── Hero ───────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      padding: 6rem 2rem 4rem;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .hero-bg::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: -20%;
+      width: 140%;
+      height: 140%;
+      background:
+        radial-gradient(ellipse 600px 400px at 30% 20%, rgba(79, 70, 229, 0.10) 0%, transparent 70%),
+        radial-gradient(ellipse 500px 500px at 70% 60%, rgba(8, 145, 178, 0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 400px 300px at 50% 80%, rgba(219, 39, 119, 0.05) 0%, transparent 70%);
+      animation: heroPulse 12s ease-in-out infinite alternate;
+    }
+    @keyframes heroPulse {
+      0% { transform: scale(1) rotate(0deg); opacity: 0.85; }
+      50% { transform: scale(1.05) rotate(1deg); opacity: 1; }
+      100% { transform: scale(1) rotate(-1deg); opacity: 0.85; }
+    }
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(15,23,42,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15,23,42,0.05) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black, transparent);
+      -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black, transparent);
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 900px; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      border-radius: 100px;
+      border: 1px solid rgba(79, 70, 229, 0.25);
+      background: rgba(79, 70, 229, 0.06);
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--accent-1);
+      margin-bottom: 2rem;
+    }
+    .hero-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-1);
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .hero h1 {
+      font-size: clamp(3rem, 7vw, 5.5rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 .gradient-text {
+      background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 50%, var(--accent-3) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-subtitle {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      line-height: 1.7;
+      color: var(--text-3);
+      max-width: 720px;
+      margin: 0 auto 2.5rem;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 4rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 100px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-3));
+      color: #fff;
+      box-shadow: 0 4px 18px rgba(79, 70, 229, 0.28);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(79, 70, 229, 0.42);
+    }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text-2);
+      border: 1px solid var(--border-2);
+    }
+    .btn-secondary:hover {
+      background: var(--surface-2);
+      color: var(--text);
+      transform: translateY(-2px);
+    }
+    .btn.is-disabled {
+      pointer-events: none;
+      opacity: 0.55;
+      filter: grayscale(0.4);
+    }
+
+    /* ── Stat Cards ─────────────────────────────────── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .stat-card:hover {
+      background: #fff;
+      border-color: var(--border-2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+    }
+
+    /* ── Dividers ───────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-2) 50%, transparent);
+      margin: 0;
+    }
+
+    /* ── Abstract Section ──────────────────────────── */
+    .abstract-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+    .abstract-text {
+      font-size: 1.05rem;
+      line-height: 1.85;
+      color: var(--text-2);
+    }
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .feature-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+    .feature-item:hover {
+      background: #fff;
+      border-color: rgba(79, 70, 229, 0.25);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+    }
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .feature-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+    .feature-icon.purple { background: rgba(79, 70, 229, 0.12);  color: var(--accent-1); }
+    .feature-icon.blue   { background: rgba(29, 78, 216, 0.12);  color: var(--accent-3); }
+    .feature-icon.teal   { background: rgba(8, 145, 178, 0.12);  color: var(--accent-2); }
+    .feature-icon.pink   { background: rgba(219, 39, 119, 0.12); color: var(--accent-pink); }
+    .feature-item h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+    .feature-item p {
+      font-size: 0.85rem;
+      color: var(--text-3);
+      line-height: 1.55;
+    }
+
+    /* ── Architecture Section ──────────────────────── */
+    .arch-image-wrap {
+      margin-top: 3rem;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 2rem;
+    }
+    .arch-image-wrap img {
+      width: 100%;
+      border-radius: 12px;
+    }
+    .arch-placeholder {
+      width: 100%;
+      aspect-ratio: 16/7;
+      border-radius: 12px;
+      background:
+        linear-gradient(135deg, rgba(79,70,229,0.06), rgba(8,145,178,0.06)),
+        repeating-linear-gradient(45deg, transparent 0 12px, rgba(15,23,42,0.025) 12px 13px);
+      border: 1px dashed var(--border-2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      gap: 0.5rem;
+      text-align: center;
+      padding: 1.5rem;
+    }
+    .arch-placeholder .ph-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-1);
+      background: rgba(79,70,229,0.1);
+      padding: 0.25rem 0.7rem;
+      border-radius: 100px;
+    }
+    .arch-placeholder .ph-note {
+      font-size: 0.78rem;
+      color: var(--muted-2);
+      max-width: 480px;
+      line-height: 1.5;
+    }
+
+    /* ── Benchmark Charts ──────────────────────────── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      transition: all 0.3s ease;
+    }
+    .chart-card:hover {
+      border-color: var(--border-2);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    }
+    .chart-card h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+    .chart-card .chart-subtitle {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .bar-label {
+      font-size: 0.72rem;
+      color: var(--text-3);
+      width: 105px;
+      text-align: right;
+      flex-shrink: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 500;
+    }
+    .bar-track {
+      flex: 1;
+      height: 26px;
+      background: var(--surface-2);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      width: 0;
+      transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+    }
+    .bar-fill.animated { width: var(--target-width); }
+    .bar-fill span {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.95);
+      white-space: nowrap;
+    }
+    .bar-fill.ours {
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+    }
+    .bar-fill.other {
+      background: #cbd5e1;
+    }
+    .bar-fill.other span { color: var(--text-2); }
+
+    /* ── Gallery Section ───────────────────────────── */
+    .gallery-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+    }
+    .gallery-tab {
+      padding: 0.6rem 1.5rem;
+      border-radius: 100px;
+      border: 1px solid var(--border-2);
+      background: transparent;
+      color: var(--text-3);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
+    }
+    .gallery-tab:hover { color: var(--text); border-color: var(--text-3); }
+    .gallery-tab.active {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-3));
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
+    }
+    .gallery-panel { display: none; }
+    .gallery-panel.active { display: block; }
+
+    /* ── Comparison Slider ─────────────────────────── */
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .comparison-item {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .comparison-slider {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      overflow: hidden;
+      cursor: col-resize;
+      user-select: none;
+    }
+    .comparison-slider img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .comparison-slider .img-overlay {
+      clip-path: inset(0 50% 0 0);
+      z-index: 2;
+    }
+    .comparison-slider .img-base { z-index: 1; }
+    .comparison-slider .slider-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      background: #fff;
+      z-index: 5;
+      pointer-events: none;
+      box-shadow: 0 0 12px rgba(0,0,0,0.5);
+    }
+    .comparison-slider .slider-handle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.95);
+      z-index: 6;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+    }
+    .comparison-slider .slider-handle::before {
+      content: '⟨  ⟩';
+      font-size: 0.75rem;
+      color: #333;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+    }
+    .slider-labels {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      z-index: 4;
+      pointer-events: none;
+      background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+    }
+    .slider-labels span {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.85);
+      background: rgba(0,0,0,0.4);
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      backdrop-filter: blur(8px);
+    }
+    .edit-prompt-badge {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      margin: 0.75rem 0.75rem 0;
+      font-size: 0.78rem;
+      color: var(--accent-1);
+      background: rgba(79, 70, 229, 0.06);
+      border: 1px solid rgba(79, 70, 229, 0.18);
+      border-radius: 8px;
+      line-height: 1.5;
+    }
+    .edit-prompt-badge .edit-tag {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #fff;
+      background: var(--accent-1);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+    }
+    .comparison-caption {
+      padding: 1rem 1.25rem;
+      font-size: 0.8rem;
+      color: var(--text-3);
+      line-height: 1.5;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Image Grid (T2I) ──────────────────────────── */
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .image-card {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      transition: all 0.4s ease;
+    }
+    .image-card:hover {
+      border-color: var(--border-2);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+    .image-card .image-wrap {
+      aspect-ratio: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    .image-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .image-card:hover img { transform: scale(1.05); }
+    .image-card .image-prompt {
+      padding: 1rem 1.25rem;
+      font-size: 0.8rem;
+      color: var(--text-3);
+      line-height: 1.5;
+      border-top: 1px solid var(--border);
+    }
+    .image-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      position: relative;
+      text-align: center;
+      gap: 0.3rem;
+      padding: 1rem;
+    }
+    .image-placeholder strong {
+      font-size: 0.85rem;
+      color: var(--text-2);
+      font-weight: 600;
+    }
+    .image-placeholder::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.75;
+      z-index: -1;
+    }
+    .ph-1::before { background: linear-gradient(135deg, #eef2ff, #e0f2fe); } /* indigo→sky */
+    .ph-2::before { background: linear-gradient(135deg, #ecfeff, #f0f9ff); } /* cyan→sky */
+    .ph-3::before { background: linear-gradient(135deg, #fdf2f8, #fae8ff); } /* pink→fuchsia */
+    .ph-4::before { background: linear-gradient(135deg, #f0fdfa, #ecfdf5); } /* teal→emerald */
+    .ph-5::before { background: linear-gradient(135deg, #fefce8, #fff7ed); } /* yellow→orange */
+    .ph-6::before { background: linear-gradient(135deg, #f5f3ff, #eef2ff); } /* violet→indigo */
+
+    /* ── Multi-Image Editing ───────────────────────── */
+    .multi-edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .multi-edit-card {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      transition: all 0.3s ease;
+    }
+    .multi-edit-card:hover {
+      border-color: rgba(79, 70, 229, 0.25);
+    }
+    .multi-edit-body {
+      padding: 1rem 1.25rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .multi-edit-card.full-width {
+      grid-column: 1 / -1;
+    }
+    .multi-edit-inputs {
+      display: grid;
+      grid-template-columns: repeat(2, 120px);
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    .multi-edit-inputs.inputs-5col {
+      grid-template-columns: repeat(5, 90px);
+    }
+    .multi-edit-inputs.inputs-3col {
+      grid-template-columns: repeat(3, 110px);
+    }
+    .multi-edit-inputs .input-thumb {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border-2);
+      position: relative;
+      cursor: pointer;
+      background: #fff;
+    }
+    .multi-edit-inputs .input-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .input-thumb-label {
+      position: absolute;
+      bottom: 0.3rem;
+      left: 0.3rem;
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(0,0,0,0.55);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      backdrop-filter: blur(4px);
+    }
+    .multi-edit-arrow {
+      font-size: 1.25rem;
+      color: var(--accent-1);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      opacity: 0.6;
+    }
+    .multi-edit-output {
+      flex: 1;
+      min-width: 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid rgba(79, 70, 229, 0.2);
+      cursor: pointer;
+      background: #fff;
+    }
+    .multi-edit-output img {
+      width: 100%;
+      display: block;
+    }
+    .full-width .multi-edit-output {
+      max-width: 380px;
+    }
+
+    /* ── BibTeX ─────────────────────────────────────── */
+    .bibtex-wrap {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-top: 2rem;
+    }
+    .bibtex-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .bibtex-header span {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .bibtex-copy {
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-2);
+      background: #fff;
+      color: var(--text-2);
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .bibtex-copy:hover {
+      background: var(--accent-1);
+      border-color: var(--accent-1);
+      color: #fff;
+    }
+    .bibtex-code {
+      padding: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.7;
+      color: var(--text-2);
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    /* ── Authors ────────────────────────────────────── */
+    .authors-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      justify-content: center;
+    }
+    .author-chip {
+      padding: 0.4rem 1rem;
+      border-radius: 100px;
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      font-size: 0.85rem;
+      color: var(--text-2);
+      transition: all 0.2s ease;
+    }
+    .author-chip:hover {
+      border-color: var(--accent-1);
+      color: var(--accent-1);
+      background: #fff;
+    }
+    .author-chip.lead {
+      border-color: rgba(79,70,229,0.35);
+      color: var(--accent-1);
+      background: rgba(79,70,229,0.06);
+      font-weight: 600;
+    }
+    .affiliations {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--text-3);
+    }
+    .affiliations .aff-sup {
+      font-weight: 700;
+      color: var(--accent-1);
+      margin-right: 0.25rem;
+    }
+
+    /* ── Footer ─────────────────────────────────────── */
+    .footer {
+      padding: 3rem 2rem;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .footer p {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* ── Responsive ─────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .charts-grid { grid-template-columns: 1fr; }
+      .comparison-grid { grid-template-columns: 1fr; }
+      .multi-edit-grid { grid-template-columns: 1fr; }
+      .abstract-grid { grid-template-columns: 1fr; gap: 2rem; }
+    }
+    @media (max-width: 768px) {
+      .image-grid { grid-template-columns: 1fr 1fr; }
+      .navbar { display: none; }
+      .section { padding: 4rem 0; }
+      .multi-edit-grid { grid-template-columns: 1fr; }
+      .multi-edit-body { flex-direction: column; }
+      .multi-edit-inputs { grid-template-columns: repeat(2, 90px); }
+      .multi-edit-inputs.inputs-5col { grid-template-columns: repeat(5, 60px); }
+      .multi-edit-inputs.inputs-3col { grid-template-columns: repeat(3, 80px); }
+    }
+    @media (max-width: 480px) {
+      .image-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ── Figure Showcase ────────────────────────────── */
+    .figure-showcase {
+      margin-top: 2rem;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      transition: all 0.3s ease;
+    }
+    .figure-showcase:hover {
+      border-color: var(--border-2);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+    .figure-showcase + .figure-showcase {
+      margin-top: 1.5rem;
+    }
+    .figure-showcase img {
+      width: 100%;
+      display: block;
+      cursor: zoom-in;
+    }
+    .figure-showcase .figure-caption {
+      padding: 1rem 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-3);
+      line-height: 1.55;
+      border-top: 1px solid var(--border);
+    }
+    .figure-showcase .figure-caption strong {
+      color: var(--text);
+    }
+
+    /* ── Findings (8 numbered cards) ─────────────────── */
+    .findings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .finding-card {
+      display: flex;
+      gap: 1rem;
+      padding: 1.25rem 1.4rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      transition: all 0.3s ease;
+    }
+    .finding-card:hover {
+      background: #fff;
+      border-color: var(--border-2);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+    }
+    .finding-num {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.95rem;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-3));
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(79,70,229,0.25);
+    }
+    .finding-body h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+      line-height: 1.35;
+    }
+    .finding-body p {
+      font-size: 0.83rem;
+      color: var(--text-3);
+      line-height: 1.55;
+    }
+    .finding-tag {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      margin-right: 0.4rem;
+      vertical-align: middle;
+    }
+    .finding-tag.eff { background: rgba(8,145,178,0.12); color: var(--accent-2); }
+    .finding-tag.fid { background: rgba(79,70,229,0.12); color: var(--accent-1); }
+    .finding-tag.rob { background: rgba(219,39,119,0.12); color: var(--accent-pink); }
+
+    /* ── Lightbox ───────────────────────────────────── */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      cursor: zoom-out;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 90vh;
+      border-radius: 12px;
+      box-shadow: 0 0 80px rgba(0,0,0,0.5);
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .lightbox-close:hover { background: rgba(255,255,255,0.2); }
+
+    /* ── Glow effect for section headings ───────────── */
+    .glow-line {
+      width: 60px;
+      height: 3px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+      margin-bottom: 2rem;
+    }
+
+    /* ── Scrollbar ──────────────────────────────────── */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--surface); }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    /* ── Findings responsive ──────────────────────── */
+    @media (max-width: 768px) {
+      .findings-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ Navbar ═══ -->
+<nav class="navbar" id="navbar">
+  <span class="nav-brand">MMPD-Bench</span>
+  <a href="#hero" class="nav-link active">Home</a>
+  <a href="#about" class="nav-link">About</a>
+  <a href="#architecture" class="nav-link">Method</a>
+  <a href="#results" class="nav-link">Results</a>
+  <a href="#findings" class="nav-link">Findings</a>
+  <a href="#gallery" class="nav-link">Gallery</a>
+  <a href="#citation" class="nav-link">Citation</a>
+</nav>
+
+<!-- ═══ Hero ═══ -->
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <div class="hero-grid"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge reveal">
+      <span class="dot"></span>
+      ICML 2026 &middot; UCL &amp; Oxford
+    </div>
+    <h1 class="reveal reveal-delay-1">
+      <span class="gradient-text">MMPD-Bench</span>
+    </h1>
+    <p class="hero-subtitle reveal reveal-delay-2">
+      Bridging <strong style="color: var(--text);">Multimodal Fission</strong> with <strong style="color: var(--text);">Multi-Polarimetric Modalities Decomposition</strong> &mdash;
+      the first benchmark that reframes Mueller matrix polar decomposition as a modality-fission problem and evaluates deep surrogates on physical consistency, fidelity, robustness, and efficiency.
+    </p>
+    <div class="hero-actions reveal reveal-delay-3">
+      <!-- TODO: replace href="#" with the camera-ready PDF link once available -->
+      <a href="#" class="btn btn-primary" title="Paper PDF (placeholder)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Read Paper
+      </a>
+      <!-- TODO: replace href="#" with the public GitHub repo once de-anonymized -->
+      <a href="#" class="btn btn-secondary" title="GitHub repo (placeholder)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        Code
+      </a>
+      <!-- TODO: replace href="#" with HuggingFace / Zenodo dataset link -->
+      <a href="#" class="btn btn-secondary" title="Dataset (placeholder)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>
+        Dataset
+      </a>
+      <a href="https://anonymous.4open.science/r/MMPD_bench-F272/" target="_blank" rel="noopener" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Anonymous Demo
+      </a>
+    </div>
+
+    <!-- ═══ Stats Strip ═══ -->
+    <div class="stats-row reveal reveal-delay-4">
+      <div class="stat-card">
+        <div class="stat-value" data-target="21412" data-prefix="" data-suffix="" data-format="comma">21,412</div>
+        <div class="stat-label">Paired MM Samples</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" data-target="4">4</div>
+        <div class="stat-label">Specialised Test Sets</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" data-target="16">16</div>
+        <div class="stat-label">Benchmarked Variants</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" data-target="6">6</div>
+        <div class="stat-label">Decomposed Modalities</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ About / Abstract ═══ -->
+<section class="section" id="about">
+  <div class="container">
+    <div class="abstract-grid">
+      <div>
+        <div class="glow-line reveal"></div>
+        <p class="section-label reveal">Abstract</p>
+        <h2 class="section-title reveal reveal-delay-1">Modality Fission for<br/>Polarimetric Decomposition</h2>
+        <p class="abstract-text reveal reveal-delay-2">
+          Recovering multiple physical parameters from high-dimensional optical measurements remains challenging in computational optics.
+          MMPD-Bench reframes Mueller matrix polar decomposition (MMPD) as a <em>modality fission</em> problem in multimodal learning,
+          replacing iterative numerical inversion with deep surrogate models. We benchmark representative architectures &mdash;
+          state space models, vision transformers, conditional diffusion models, and neural operators &mdash; under a multi-faceted protocol that
+          jointly assesses perceptual fidelity, physical consistency, robustness, and computational efficiency.
+          Our analysis reveals non-trivial trade-offs between accuracy and robustness in accelerated high-fidelity polarimetric decomposition.
+        </p>
+      </div>
+      <ul class="feature-list reveal reveal-delay-2">
+        <li class="feature-item">
+          <div class="feature-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></div>
+          <div>
+            <h4>Modality Fission Framing</h4>
+            <p>Formally unifies MMPD with multimodal representation learning &mdash; one entangled Mueller matrix disentangled into six physically distinct parameter manifolds.</p>
+          </div>
+        </li>
+        <li class="feature-item">
+          <div class="feature-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></svg></div>
+          <div>
+            <h4>Neural Operators for MMPD</h4>
+            <p>First adaptation of FNO / UNO to Mueller-matrix decomposition, spanning attention, state-space, generative, and operator-learning paradigms.</p>
+          </div>
+        </li>
+        <li class="feature-item">
+          <div class="feature-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></div>
+          <div>
+            <h4>21,412 Real-World Samples</h4>
+            <p>Paired Mueller matrix observations from custom wide-field polarimetric imaging on healthy &amp; diseased bone tissue, plus four specialised test sets.</p>
+          </div>
+        </li>
+        <li class="feature-item">
+          <div class="feature-icon pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+          <div>
+            <h4>Multi-Faceted Evaluation</h4>
+            <p>PSNR, SSIM, 1-D Wasserstein, runtime, FLOPs, peak memory, and a retardance physical-consistency score &mdash; all open-sourced.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Method / Overview Figure ═══ -->
+<section class="section" id="architecture" style="padding-top: 0;">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-label">Method</p>
+      <h2 class="section-title">How MMPD-Bench Works</h2>
+      <p class="section-desc">
+        A spatially resolved 4&times;4 Mueller matrix observation is decomposed into six physically interpretable parameters &mdash;
+        diattenuation, depolarisation, linear / total retardance, fast-axis orientation, and optical rotation.
+        MMPD-Bench reframes this as a modality-fission task and benchmarks deep surrogates (SSMs, ViTs, diffusion models, neural operators)
+        under unified evaluations of fidelity, statistical alignment, physical consistency, robustness, and efficiency.
+      </p>
+    </div>
+    <div class="arch-image-wrap reveal reveal-delay-1">
+      <!-- TODO: replace placeholder with figures/teaser.png (paper Figure 1: overview pipeline) -->
+      <div class="arch-placeholder">
+        <span class="ph-tag">Figure 1 &middot; placeholder</span>
+        <strong style="color: var(--text-2); font-size: 1rem;">Overview of MMPD-Bench Pipeline</strong>
+        <p class="ph-note">
+          (a) 4&times;4 Mueller matrix observation &rarr; (b) Lu&ndash;Chipman numerical inversion (baseline) &rarr;
+          (c) deep surrogate modality-fission framework with unified evaluation across fidelity, consistency, robustness, and efficiency.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ Benchmark Results ═══ -->
+<section class="section" id="results">
+  <div class="container">
+    <div class="reveal">
+      <div class="glow-line"></div>
+      <p class="section-label">Benchmarks</p>
+      <h2 class="section-title">Quantitative Results</h2>
+      <p class="section-desc">
+        Representative results on the combined bone-cell test set (clear Mueller-matrix observations).
+        Best models per metric are highlighted. Spectral methods (FNO / UNO) and FactFormer dominate the difficult angular-phase modality (&theta;);
+        deterministic surrogates lead on depolarisation (&Delta;); diffusion models struggle on quantitative fidelity.
+        See Tables 8 &amp; 9 in the paper for the full set of 16 model variants.
+      </p>
+    </div>
+    <div class="charts-grid">
+      <!-- Chart 1: PSNR on ImageTheta (Fast-axis orientation — the hardest modality) -->
+      <div class="chart-card reveal reveal-delay-1" data-chart>
+        <h3>Fast-Axis Orientation (&theta;)</h3>
+        <p class="chart-subtitle">PSNR &uarr; (dB)  &middot;  ImageTheta</p>
+        <div class="bar-chart">
+          <div class="bar-row">
+            <span class="bar-label">UNO-b (NO)</span>
+            <div class="bar-track"><div class="bar-fill ours" style="--target-width: 96%"><span>27.3</span></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">FNO-b (NO)</span>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 91%"><span>25.9</span></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">SU-b (Mamba)</span>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 87%"><span>24.8</span></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">FF-b (ViT)</span>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 85%"><span>24.1</span></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">DDPM-b (DM)</span>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 70%"><span>20.0</span></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">SU-b (ViT)</span>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 54%"><span>15.2</span></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- Chart 2: SSIM on ImageDelta (depolarization) -->
+      <div class="chart-card reveal reveal-delay-2" data-chart>
+        <h3>Depolarisation (&Delta;)</h3>
+        <p class="chart-subtitle">SSIM &uarr; (%)  &middot;  ImageDelta</p>
+        <div class="bar-chart">
+          <div class="bar-row">
+            <span class="bar-label">FF-b (ViT)</span>
+            <div class="bar-track"><div class="bar-fill ours" style="--target-width: 99%"><span>99.8</span></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">SU-b (Mamba)</span>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 99%"><span>99.3</span></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">FNO-b (NO)</span>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 98%"><span>98.9</span></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">UNO-b (NO)</span>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 97%"><span>97.4</span></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">DDIM-b (DM)</span>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 86%"><span>85.9</span></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">DDPM-b (DM)</span>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 79%"><span>79.4</span></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- Chart 3: WD-1d on ImageTheta (lower is better) — invert bar widths -->
+      <div class="chart-card reveal reveal-delay-3" data-chart>
+        <h3>Statistical Alignment (&theta;)</h3>
+        <p class="chart-subtitle">WD-1d &darr;  &middot;  whole test set, lower is better</p>
+        <div class="bar-chart">
+          <div class="bar-row">
+            <span class="bar-label">FNO-b (NO)</span>
+            <div class="bar-track"><div class="bar-fill ours" style="--target-width: 96%"><span>1.55</span></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">SU-b (Mamba)</span>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 95%"><span>1.60</span></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">FF-b (ViT)</span>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 94%"><span>1.70</span></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">UNO-b (NO)</span>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 93%"><span>1.73</span></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">DDPM-b (DM)</span>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 41%"><span>4.25</span></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">DDIM-b (DM)</span>
+            <div class="bar-track"><div class="bar-fill other" style="--target-width: 10%"><span>6.45</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ 8 Key Findings ═══ -->
+<section class="section" id="findings" style="padding-top: 3rem;">
+  <div class="container">
+    <div class="reveal">
+      <div class="glow-line"></div>
+      <p class="section-label">Insights</p>
+      <h2 class="section-title">Eight Key Findings</h2>
+      <p class="section-desc">
+        Across the three task pillars &mdash; computational efficiency, modality fidelity &amp; physical consistency, and robustness under perturbations &mdash;
+        we identify the following load-bearing observations from 16 model variants on 21,412 Mueller-matrix samples.
+      </p>
+    </div>
+    <div class="findings-grid">
+      <div class="finding-card reveal reveal-delay-1">
+        <div class="finding-num">1</div>
+        <div class="finding-body">
+          <h4><span class="finding-tag eff">Efficiency</span>Swin-Unet transformers scale best with batch size</h4>
+          <p>Window-attention models maintain strong throughput as batch grows, while linear-complexity Mamba and FactFormer hit out-of-memory limits earlier than expected.</p>
+        </div>
+      </div>
+      <div class="finding-card reveal reveal-delay-1">
+        <div class="finding-num">2</div>
+        <div class="finding-body">
+          <h4><span class="finding-tag eff">Efficiency</span>Tailored architectures beat brute-force scaling</h4>
+          <p>FNO-s and UNO-s strike the best efficiency&ndash;accuracy balance; scaling to -b variants adds cost without proportional gains, and diffusion sampling cost dominates total latency.</p>
+        </div>
+      </div>
+      <div class="finding-card reveal reveal-delay-2">
+        <div class="finding-num">3</div>
+        <div class="finding-body">
+          <h4><span class="finding-tag fid">Fidelity</span>Deterministic methods outperform generative priors</h4>
+          <p>FactFormer, FNO, and SwinUMamba dominate quantitative metrology and physical consistency; diffusion surrogates show notable retardance-consistency residuals.</p>
+        </div>
+      </div>
+      <div class="finding-card reveal reveal-delay-2">
+        <div class="finding-num">4</div>
+        <div class="finding-body">
+          <h4><span class="finding-tag fid">Fidelity</span>Neural Operators &amp; FactFormer resolve angular phase</h4>
+          <p>UNO-b achieves 27.3 dB PSNR on ImageTheta and FF-b 51.7 dB on ImagePsi &mdash; spectral parameterisation preserves &theta;/&psi; phase structure better than patch attention.</p>
+        </div>
+      </div>
+      <div class="finding-card reveal reveal-delay-3">
+        <div class="finding-num">5</div>
+        <div class="finding-body">
+          <h4><span class="finding-tag fid">Fidelity</span>Diffusion models struggle with multi-polarimetric fission</h4>
+          <p>Four factors: non-linear error amplification, hallucination violating physics constraints, incoherent inter-channel denoising, and data sparsity on the high-dimensional Mueller manifold.</p>
+        </div>
+      </div>
+      <div class="finding-card reveal reveal-delay-3">
+        <div class="finding-num">6</div>
+        <div class="finding-body">
+          <h4><span class="finding-tag rob">Robustness</span>Larger models are <em>not</em> more robust</h4>
+          <p>Smaller (-s) variants degrade less under additive Gaussian noise than their (-b) counterparts &mdash; scale amplifies sensitivity to high-frequency measurement noise.</p>
+        </div>
+      </div>
+      <div class="finding-card reveal reveal-delay-4">
+        <div class="finding-num">7</div>
+        <div class="finding-body">
+          <h4><span class="finding-tag rob">Robustness</span>U-shaped models are vulnerable to noise</h4>
+          <p>Mamba and NO U-shaped designs show up to 49.8% PSNR / 63.7% SSIM / 83.2% WD-1d degradation. Global-attention transformers stay substantially more stable.</p>
+        </div>
+      </div>
+      <div class="finding-card reveal reveal-delay-4">
+        <div class="finding-num">8</div>
+        <div class="finding-body">
+          <h4><span class="finding-tag rob">Robustness</span>Diffusion models <em>improve</em> with noisy inputs</h4>
+          <p>Measurement noise smooths the otherwise peaked Mueller-matrix distribution, stabilising score estimation. Caveat: angular modalities (&theta;) remain noise-sensitive due to non-linear arctan amplification.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ Gallery ═══ -->
+<section class="section" id="gallery">
+  <div class="container-wide">
+    <div class="reveal">
+      <div class="glow-line"></div>
+      <p class="section-label">Gallery</p>
+      <h2 class="section-title">Decomposition Examples</h2>
+      <p class="section-desc">
+        Qualitative comparisons across the three sample classes &mdash; healthy bone tissue, diseased tissue, and waveplate calibration references.
+        Each row shows a Mueller-matrix input (left) and the six decomposed modality maps {D, &Delta;, &eta;, &theta;, &psi;, R}.
+        Figures will be replaced with paper Figure 8 (a&ndash;q) panels.
+      </p>
+    </div>
+
+    <div class="gallery-tabs reveal reveal-delay-1" style="margin-top: 2rem;">
+      <button class="gallery-tab active" data-tab="healthy">Healthy Tissue</button>
+      <button class="gallery-tab" data-tab="diseased">Diseased Tissue</button>
+      <button class="gallery-tab" data-tab="waveplate">Waveplate Test</button>
+    </div>
+
+    <!-- ── Tab: Healthy ── -->
+    <div class="gallery-panel active" id="tab-healthy">
+      <p class="section-desc" style="margin-bottom: 1.5rem; font-size: 0.92rem;">
+        Healthy bone sections exhibit organised fibrillar features &mdash; spatially coherent linear retardance (&eta;) and oriented fast-axis (&theta;) maps.
+      </p>
+      <div class="image-grid">
+        <div class="image-card reveal">
+          <div class="image-wrap"><div class="image-placeholder ph-1"><strong>MM input</strong>4&times;4 Mueller matrix<br/>256&times;256&times;16</div></div>
+          <p class="image-prompt">Input: full Mueller matrix observation from a healthy bone section. (Placeholder &mdash; replace with paper Figure 8.a sample.)</p>
+        </div>
+        <div class="image-card reveal reveal-delay-1">
+          <div class="image-wrap"><div class="image-placeholder ph-2"><strong>Diattenuation (D)</strong>range [0, 1]</div></div>
+          <p class="image-prompt">Reference Lu&ndash;Chipman decomposition output for D. (Placeholder.)</p>
+        </div>
+        <div class="image-card reveal">
+          <div class="image-wrap"><div class="image-placeholder ph-3"><strong>Depolarisation (&Delta;)</strong>range [0, 1]</div></div>
+          <p class="image-prompt">Reference decomposition for &Delta; &mdash; small in healthy samples. (Placeholder.)</p>
+        </div>
+        <div class="image-card reveal reveal-delay-1">
+          <div class="image-wrap"><div class="image-placeholder ph-4"><strong>Linear Retardance (&eta;)</strong>range [0, &pi;)</div></div>
+          <p class="image-prompt">Reference decomposition for &eta; &mdash; dominant contrast in this regime. (Placeholder.)</p>
+        </div>
+        <div class="image-card reveal">
+          <div class="image-wrap"><div class="image-placeholder ph-5"><strong>Fast-Axis (&theta;)</strong>range [&minus;&pi;/2, &pi;/2)</div></div>
+          <p class="image-prompt">Reference decomposition for &theta; &mdash; the angular-phase modality NOs resolve best. (Placeholder.)</p>
+        </div>
+        <div class="image-card reveal reveal-delay-1">
+          <div class="image-wrap"><div class="image-placeholder ph-6"><strong>Total Retardance (R)</strong>range [0, &pi;)</div></div>
+          <p class="image-prompt">Reference decomposition for R. (Placeholder.)</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Tab: Diseased ── -->
+    <div class="gallery-panel" id="tab-diseased">
+      <p class="section-desc" style="margin-bottom: 1.5rem; font-size: 0.92rem;">
+        Diseased regions show stronger depolarisation (&Delta;) and disrupted anisotropy &mdash; reduced orientation coherence and increased spatial variability.
+      </p>
+      <div class="image-grid">
+        <div class="image-card reveal">
+          <div class="image-wrap"><div class="image-placeholder ph-3"><strong>MM input</strong>diseased section</div></div>
+          <p class="image-prompt">Input MM from a diseased bone section. (Placeholder.)</p>
+        </div>
+        <div class="image-card reveal reveal-delay-1">
+          <div class="image-wrap"><div class="image-placeholder ph-1"><strong>D</strong>diattenuation</div></div>
+          <p class="image-prompt">Reference D map. (Placeholder.)</p>
+        </div>
+        <div class="image-card reveal">
+          <div class="image-wrap"><div class="image-placeholder ph-3"><strong>&Delta;</strong>elevated depolarisation</div></div>
+          <p class="image-prompt">Reference &Delta; map &mdash; larger and more spatially variable than in healthy tissue. (Placeholder.)</p>
+        </div>
+        <div class="image-card reveal reveal-delay-1">
+          <div class="image-wrap"><div class="image-placeholder ph-4"><strong>&eta;</strong>linear retardance</div></div>
+          <p class="image-prompt">Reference &eta; map. (Placeholder.)</p>
+        </div>
+        <div class="image-card reveal">
+          <div class="image-wrap"><div class="image-placeholder ph-5"><strong>&theta;</strong>fast-axis disrupted</div></div>
+          <p class="image-prompt">Reference &theta; map &mdash; orientation coherence decreases relative to healthy tissue. (Placeholder.)</p>
+        </div>
+        <div class="image-card reveal reveal-delay-1">
+          <div class="image-wrap"><div class="image-placeholder ph-2"><strong>R</strong>total retardance</div></div>
+          <p class="image-prompt">Reference R map. (Placeholder.)</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Tab: Waveplate ── -->
+    <div class="gallery-panel" id="tab-waveplate">
+      <p class="section-desc" style="margin-bottom: 1.5rem; font-size: 0.92rem;">
+        Standardised waveplates with known optical parameters &mdash; an external test set probing cross-sample and spectral generalisation.
+      </p>
+      <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="image-card reveal">
+          <div class="image-wrap" style="aspect-ratio: 16/9;"><div class="image-placeholder ph-2"><strong>Quarter-wave plate</strong>known &eta; = &pi;/2</div></div>
+          <p class="image-prompt">Calibrated quarter-wave plate observation &amp; decomposed parameter maps; cross-validates model fidelity against ground-truth optical constants. (Placeholder.)</p>
+        </div>
+        <div class="image-card reveal reveal-delay-1">
+          <div class="image-wrap" style="aspect-ratio: 16/9;"><div class="image-placeholder ph-6"><strong>Half-wave plate</strong>known &eta; = &pi;</div></div>
+          <p class="image-prompt">Calibrated half-wave plate &mdash; tests the model's behaviour at the boundary of the &eta; range. (Placeholder.)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ Authors ═══ -->
+<section class="section" id="authors" style="padding: 5rem 0;">
+  <div class="container" style="text-align:center;">
+    <p class="section-label reveal">Team</p>
+    <h2 class="section-title reveal reveal-delay-1" style="margin-bottom: 0.5rem;">Authors</h2>
+    <p class="section-desc reveal reveal-delay-2" style="margin: 0 auto 2rem; text-align: center;">
+      University College London &middot; University of Oxford
+    </p>
+    <div class="authors-list reveal reveal-delay-3">
+      <span class="author-chip lead">Yi He<sup>*,1</sup></span>
+      <span class="author-chip lead">Zimo Zhao<sup>*,2</sup></span>
+      <span class="author-chip">Yiming Yang<sup>1</sup></span>
+      <span class="author-chip">Xiaoyuan Cheng<sup>1</sup></span>
+      <span class="author-chip lead">Chao He<sup>&dagger;,2</sup></span>
+      <span class="author-chip lead">Yukun Hu<sup>&dagger;,1</sup></span>
+    </div>
+    <div class="affiliations reveal reveal-delay-4">
+      <span><span class="aff-sup">1</span>Dynamic Systems Lab, University College London</span>
+      <span><span class="aff-sup">2</span>Department of Engineering Science, University of Oxford</span>
+    </div>
+    <p class="reveal reveal-delay-4" style="font-size: 0.78rem; color: var(--muted); margin-top: 1.25rem;">
+      <strong style="color: var(--text-2);">*</strong> Equal Contribution &nbsp;&middot;&nbsp;
+      <strong style="color: var(--text-2);">&dagger;</strong> Corresponding Authors &nbsp;&middot;&nbsp;
+      <a href="mailto:chao.he@eng.ox.ac.uk" style="color: var(--accent-1);">chao.he@eng.ox.ac.uk</a> &nbsp;&middot;&nbsp;
+      <a href="mailto:yukun.hu@ucl.ac.uk" style="color: var(--accent-1);">yukun.hu@ucl.ac.uk</a>
+    </p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ Citation ═══ -->
+<section class="section" id="citation">
+  <div class="container">
+    <div class="reveal">
+      <div class="glow-line"></div>
+      <p class="section-label">Citation</p>
+      <h2 class="section-title">BibTeX</h2>
+      <p class="section-desc">If you find MMPD-Bench useful, please cite our ICML 2026 paper.</p>
+    </div>
+    <div class="bibtex-wrap reveal reveal-delay-1">
+      <div class="bibtex-header">
+        <span>BibTeX</span>
+        <button class="bibtex-copy" onclick="copyBibtex()">Copy</button>
+      </div>
+      <div class="bibtex-code" id="bibtex-content">@inproceedings{he2026mmpdbench,
+  title     = {MMPD-Bench: Bridging Multimodal Fission with Multi-Polarimetric Modalities Decomposition},
+  author    = {He, Yi and Zhao, Zimo and Yang, Yiming and Cheng, Xiaoyuan and He, Chao and Hu, Yukun},
+  booktitle = {Proceedings of the 43rd International Conference on Machine Learning},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {306},
+  year      = {2026},
+  publisher = {PMLR}
+}</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Footer ═══ -->
+<footer class="footer">
+  <p>MMPD-Bench &middot; UCL &amp; Oxford &middot; ICML 2026</p>
+</footer>
+
+<!-- ═══ Lightbox ═══ -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+  <img id="lightbox-img" src="" alt="" />
+</div>
+
+<script>
+/* ── Scroll Reveal ────────────────────────────────── */
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+/* ── Navbar scroll state ──────────────────────────── */
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 100);
+});
+
+/* ── Active nav link ──────────────────────────────── */
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(section => {
+    const top = section.offsetTop - 200;
+    if (window.scrollY >= top) current = section.getAttribute('id');
+  });
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+  });
+});
+
+/* ── Animated Counters ────────────────────────────── */
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const target = parseFloat(el.dataset.target);
+      const suffix = el.dataset.suffix || '';
+      const prefix = el.dataset.prefix || '';
+      const format = el.dataset.format || (Number.isInteger(target) ? 'int' : 'float');
+      const fmt = (n) => {
+        if (format === 'comma') return Math.round(n).toLocaleString('en-US');
+        if (format === 'int')   return Math.round(n).toString();
+        return n.toFixed(1);
+      };
+      let current = 0;
+      const step = target / 60;
+      const timer = setInterval(() => {
+        current += step;
+        if (current >= target) {
+          current = target;
+          clearInterval(timer);
+        }
+        el.textContent = prefix + fmt(current) + suffix;
+      }, 16);
+      counterObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.stat-value[data-target]').forEach(el => counterObserver.observe(el));
+
+/* ── Bar Chart Animation ──────────────────────────── */
+const chartObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const fills = entry.target.querySelectorAll('.bar-fill');
+      fills.forEach((fill, i) => {
+        setTimeout(() => fill.classList.add('animated'), i * 80);
+      });
+      chartObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('[data-chart]').forEach(el => chartObserver.observe(el));
+
+/* ── Gallery Tabs ─────────────────────────────────── */
+document.querySelectorAll('.gallery-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.gallery-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.gallery-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+/* ── Comparison Slider ────────────────────────────── */
+document.querySelectorAll('[data-slider]').forEach(slider => {
+  let isDown = false;
+
+  function updateSlider(x) {
+    const rect = slider.getBoundingClientRect();
+    let pct = ((x - rect.left) / rect.width) * 100;
+    pct = Math.max(0, Math.min(100, pct));
+
+    const overlay = slider.querySelector('.img-overlay');
+    const line = slider.querySelector('.slider-line');
+    const handle = slider.querySelector('.slider-handle');
+
+    overlay.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
+    line.style.left = pct + '%';
+    handle.style.left = pct + '%';
+  }
+
+  slider.addEventListener('mousedown', (e) => { isDown = true; updateSlider(e.clientX); });
+  slider.addEventListener('touchstart', (e) => { isDown = true; updateSlider(e.touches[0].clientX); });
+  window.addEventListener('mousemove', (e) => { if (isDown) updateSlider(e.clientX); });
+  window.addEventListener('touchmove', (e) => { if (isDown) updateSlider(e.touches[0].clientX); });
+  window.addEventListener('mouseup', () => { isDown = false; });
+  window.addEventListener('touchend', () => { isDown = false; });
+});
+
+/* ── Copy BibTeX ──────────────────────────────────── */
+function copyBibtex() {
+  const text = document.getElementById('bibtex-content').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.bibtex-copy');
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+  });
+}
+
+/* ── Lightbox ─────────────────────────────────────── */
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('lightbox').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeLightbox();
+});
+document.querySelectorAll('.input-thumb img').forEach(img => {
+  img.addEventListener('click', () => openLightbox(img.src));
+});
+
+/* ── Click-to-zoom for image cards ────────────────── */
+document.querySelectorAll('.image-card img').forEach(img => {
+  img.style.cursor = 'zoom-in';
+  img.addEventListener('click', () => openLightbox(img.src));
+});
+</script>
+
+</body>
+</html>
